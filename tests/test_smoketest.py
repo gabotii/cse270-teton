@@ -1,10 +1,11 @@
+# test_smoketest.py
 import pytest
 import time
 import json
 from selenium import webdriver
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.action_chains import ActionChains
-from selenium.webdriver.support import expected_conditions as EC
+from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
@@ -13,8 +14,10 @@ from selenium.webdriver.chrome.options import Options
 class TestSmoketest():
   def setup_method(self, method):
     options = Options()
-    options.add_argument("--headless=new")
-    self.driver = webdriver.Chrome(options=options)
+    options.add_argument("--headless=new")     
+    options.add_argument("--disable-gpu")
+    options.add_argument("--no-sandbox")
+    self.driver = webdriver.Chrome(options=options)  # ✅ Use Chrome
     self.vars = {}
 
   def teardown_method(self, method):
@@ -34,8 +37,12 @@ class TestSmoketest():
     elements = self.driver.find_elements(By.ID, "username")
     assert len(elements) > 0
     assert self.driver.find_element(By.CSS_SELECTOR, ".myinput:nth-child(2)").text == "Username:"
+    elements = self.driver.find_elements(By.ID, "username")
+    assert len(elements) > 0
+    self.driver.find_element(By.ID, "username").click()
     self.driver.find_element(By.ID, "username").send_keys("incorrect")
     self.driver.find_element(By.ID, "password").send_keys("incorrect")
+    self.driver.find_element(By.CSS_SELECTOR, ".admin-main").click()
     self.driver.find_element(By.CSS_SELECTOR, ".mysubmit:nth-child(4)").click()
     assert self.driver.find_element(By.CSS_SELECTOR, ".errorMessage").text == "Invalid username and password."
 
@@ -52,27 +59,17 @@ class TestSmoketest():
     self.driver.get("http://127.0.0.1:5500/teton/1.6/index.html")
     elements = self.driver.find_elements(By.CSS_SELECTOR, ".main-spotlight")
     assert len(elements) > 0
-
     elements = self.driver.find_elements(By.LINK_TEXT, "Join Us")
     assert len(elements) > 0
-
     self.driver.find_element(By.LINK_TEXT, "Join Us").click()
     self.driver.get("http://127.0.0.1:5500/teton/1.6/join.html")
-
-    # Fill the form
+    elements = self.driver.find_elements(By.NAME, "fname")
+    assert len(elements) > 0
     self.driver.find_element(By.NAME, "fname").send_keys("John")
     self.driver.find_element(By.NAME, "lname").send_keys("Doe")
     self.driver.find_element(By.NAME, "bizname").send_keys("Silver")
     self.driver.find_element(By.NAME, "biztitle").send_keys("Manager")
-
-    # Submit the form
     self.driver.find_element(By.NAME, "submit").click()
-
-    # Re-fetch the email input field to avoid stale element issue
-    email_field = WebDriverWait(self.driver, 5).until(
-        EC.presence_of_element_located((By.NAME, "email"))
-    )
-    email_field.send_keys("doe@gmail.com")
-
+    self.driver.find_element(By.NAME, "email").send_keys("doe@gmail.com")
     elements = self.driver.find_elements(By.NAME, "email")
     assert len(elements) > 0
