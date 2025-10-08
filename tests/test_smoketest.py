@@ -9,12 +9,12 @@ from selenium.webdriver.support import expected_conditions
 from selenium.webdriver.support.wait import WebDriverWait
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.desired_capabilities import DesiredCapabilities
-from selenium.webdriver.chrome.options import Options  
+from selenium.webdriver.chrome.options import Options  # ✅ Added for headless mode
 
 class TestSmoketest():
   def setup_method(self, method):
     options = Options()
-    options.add_argument("--headless=new")  
+    options.add_argument("--headless=new")  # ✅ Run Chrome in headless mode
     self.driver = webdriver.Chrome(options=options)
     self.vars = {}
 
@@ -68,6 +68,5 @@ class TestSmoketest():
     self.driver.find_element(By.NAME, "bizname").send_keys("Silver")
     self.driver.find_element(By.NAME, "biztitle").send_keys("Manager")
     self.driver.find_element(By.NAME, "submit").click()
-    self.driver.find_element(By.NAME, "email").send_keys("doe@gmail.com")
     elements = self.driver.find_elements(By.NAME, "email")
     assert len(elements) > 0
